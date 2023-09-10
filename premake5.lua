@@ -1,44 +1,47 @@
 workspace "vklearn"
     configurations { "Debug", "Release" }
 
-project "App"
+project "VkApp"
+    -- Language
+    language "C++"
+    cppdialect "C++17"
+
+    -- Output
+    kind "ConsoleApp"
+    targetdir   "%{wks.location}/bin/"
+    objdir      "%{wks.location}/bin-int/"
+
     -- Input
     files
     {
-        "src/**.h", "src/**.cpp"
+        "src/**.h",
+        "src/**.cpp",
     }
 
     includedirs
     {
-        "src/"
+        "src",
     }
 
-    -- Preprocessor
-    defines { "GLFW_INCLUDE_NONE" }
-
     -- Linker
-    links {  }
+    links
+    {
+        "glfw"
+    }
 
-    filter { "system:linux" }
-        links { "vulkan", "dl", "m", "glfw", "pthread", "X11", "Xrandr", "Xi" }
-        libdirs { "/usr/bin" }
-    filter {}
+    -- Platform specific
+    filter "system:linux"
+        libdirs { "/usr/lib/", "%{wks.location}/lib/" }
+        links { "m", "dl", "pthread", "X11", "Xrandr", "Xi", "Xxf86vm", "vulkan" }
 
-    -- Language
-    language    "C++"
-    cppdialect  "C++17"
+    filter "system:windows"
+        libdirs { "%{wks.location}/lib/" }
 
-    -- Output
-    targetname  "VkApp"
-    targetdir   "bin/"
-    objdir      "bin-int/"
-    kind        "ConsoleApp"
-
-    -- Config 
-    filter { "configurations:Debug" }
+    -- Configs
+    filter "configurations:Debug"
         defines { "DEBUG" }
         symbols "On"
 
-    filter { "configurations:Release" }
+    filter "configurations:Release"
         defines { "NDEBUG" }
         optimize "On"
